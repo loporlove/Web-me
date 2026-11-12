@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🔒 Xác minh danh tính</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:#0b0618;
+    background-image:
+      radial-gradient(circle at 15% 10%, #5b21b6 0%, transparent 45%),
+      radial-gradient(circle at 85% 90%, #0e7490 0%, transparent 45%),
+      radial-gradient(circle at 50% 50%, #1e1b4b 0%, transparent 70%);
+    padding:18px;overflow:hidden;position:relative;user-select:none;
+  }
+
+  /* ===== CARD ===== */
+  .card{
+    width:min(390px,100%);
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:26px;
+    padding:24px 22px 20px;
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    box-shadow:0 25px 60px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.15);
+    color:#fff;text-align:center;position:relative;z-index:2;
+  }
+  .card.shake{animation:shake .45s cubic-bezier(.36,.07,.19,.97)}
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    15%{transform:translateX(-11px) rotate(-1deg)}
+    30%{transform:translateX(10px) rotate(1deg)}
+    45%{transform:translateX(-8px)}
+    60%{transform:translateX(7px)}
+    80%{transform:translateX(-3px)}
+  }
+
+  .lock{
+    font-size:38px;line-height:1;display:inline-block;
+    animation:pulse 2s ease-in-out infinite;
+    filter:drop-shadow(0 0 14px rgba(167,139,250,.8));
+  }
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+
+  h1{font-size:19px;margin:10px 0 4px;letter-spacing:.3px;font-weight:700}
+  .sub{font-size:12.5px;color:rgba(255,255,255,.55);margin-bottom:14px}
+
+  .hint{
+    display:inline-block;font-size:12.5px;padding:8px 14px;border-radius:999px;
+    background:rgba(250,204,21,.12);border:1px solid rgba(250,204,21,.35);
+    color:#fde68a;margin-bottom:16px;
+  }
+
+  /* ===== DOTS ===== */
+  .dots{display:flex;justify-content:center;gap:13px;margin-bottom:12px;height:16px}
+  .dot{
+    width:14px;height:14px;border-radius:50%;
+    background:rgba(255,255,255,.12);
+    border:1.5px solid rgba(255,255,255,.25);
+    transition:all .18s ease;
+  }
+  .dot.on{
+    background:#a78bfa;border-color:#c4b5fd;
+    box-shadow:0 0 14px #a78bfa;transform:scale(1.18);
+  }
+
+  /* ===== MESSAGE ===== */
+  .msg{
+    min-height:38px;font-size:13px;line-height:1.45;
+    display:flex;align-items:center;justify-content:center;
+    padding:0 4px;transition:.25s;color:rgba(255,255,255,.7);
+  }
+  .msg.error{color:#fca5a5}
+  .msg.warn{color:#fcd34d}
+  .msg.done{color:#86efac;font-weight:600}
+
+  /* ===== PROGRESS ===== */
+  .progress{
+    height:6px;border-radius:99px;background:rgba(255,255,255,.1);
+    overflow:hidden;margin-bottom:14px;opacity:0;height:0;
+    transition:opacity .25s,height .25s,margin .25s;
+  }
+  .progress.show{opacity:1;height:6px;margin-bottom:14px}
+  .bar{
+    height:100%;width:0%;border-radius:99px;
+    background:linear-gradient(90deg,#a78bfa,#22d3ee);
+    box-shadow:0 0 12px rgba(167,139,250,.8);
+    transition:width .12s linear;
+  }
+
+  /* ===== KEYPAD ===== */
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .key{
+    height:52px;border:none;border-radius:15px;cursor:pointer;
+    font-size:21px;font-weight:600;color:#fff;font-family:inherit;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.1);
+    transition:transform .08s,background .15s;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .key:active{transform:scale(.93);background:rgba(255,255,255,.2)}
+  .key.del{background:rgba(239,68,68,.16);color:#fca5a5}
+  .key.ok{background:linear-gradient(135deg,#7c3aed,#22d3ee);font-size:20px}
+  .key:disabled{opacity:.4}
+
+  .tries{
+    margin-top:14px;font-size:11.5px;letter-spacing:.5px;
+    color:rgba(255,255,255,.4);text-transform:uppercase;
+  }
+
+  /* ===== CONFETTI ===== */
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:99;overflow:hidden}
+  .conf{
+    position:absolute;width:9px;height:14px;top:-30px;border-radius:2px;
+    animation:fall linear forwards;
+  }
+  @keyframes fall{
+    0%{transform:translateY(0) rotate(0deg);opacity:1}
+    100%{transform:translateY(105vh) rotate(720deg);opacity:.9}
+  }
+</style>
+</head>
+<body>
+
+<div class="card" id="card">
+  <div class="lock" id="lockIcon">🔒</div>
+  <h1>XÁC MINH DANH TÍNH</h1>
+  <p class="sub">Nhập mã PIN 6 số để tiếp tục</p>
+  <div class="hint">💡 Gợi ý: Ngày sinh của bạn (DDMMYY)</div>
+
+  <div class="dots" id="dots"></div>
+  <div class="msg" id="msg">Nhập mã PIN của bạn…</div>
+
+  <div class="progress" id="progress"><div class="bar" id="bar"></div></div>
+
+  <div class="keypad" id="keypad"></div>
+  <div class="tries" id="tries">Còn 5 lần thử</div>
+</div>
+
+<div id="confetti"></div>
+
+<script>
+/* ========== CẤU HÌNH ========== */
+const MAX_LEN   = 6;
+const MAX_TRIES = 5;
+
+const MESSAGES = [
+  "❌ Mã PIN không đúng. Thử lại nhé!",
+  "❌ Vẫn sai… Bạn chắc chứ? 🤨",
+  "❌ Sai nữa rồi! Bạn không nhớ ngày sinh mình à? 🙃",
+  "❌ Hmm… lạ thật. Thử lại lần nữa xem?",
+];
+
+/* ========== STATE ========== */
+let pin      = "";
+let attempts = 0;
+let locked   = false;
+
+/* ========== DOM ========== */
+const card      = document.getElementById('card');
+const dotsEl    = document.getElementById('dots');
+const msgEl     = document.getElementById('msg');
+const triesEl   = document.getElementById('tries');
+const keypadEl  = document.getElementById('keypad');
+const progressEl= document.getElementById('progress');
+const barEl     = document.getElementById('bar');
+const confettiEl= document.getElementById('confetti');
+
+/* ========== TẠO CHẤM TRÒN ========== */
+for (let i = 0; i < MAX_LEN; i++) {
+  const d = document.createElement('div');
+  d.className = 'dot';
+  dotsEl.appendChild(d);
+}
+const dotEls = [...dotsEl.children];
+
+/* ========== TẠO BÀN PHÍM ========== */
+const KEYS = ['1','2','3','4','5','6','7','8','9','⌫','0','✓'];
+KEYS.forEach(k => {
+  const b = document.createElement('button');
+  b.className = 'key' + (k === '⌫' ? ' del' : '') + (k === '✓' ? ' ok' : '');
+  b.textContent = k;
+  b.addEventListener('click', () => press(k));
+  keypadEl.appendChild(b);
+});
+
+/* ========== HÀM PHỤ ========== */
+function render() {
+  dotEls.forEach((d, i) => d.classList.toggle('on', i < pin.length));
+}
+
+function setMsg(text, type = '') {
+  msgEl.className = 'msg ' + type;
+  msgEl.textContent = text;
+}
+
+function shake() {
+  card.classList.remove('shake');
+  void card.offsetWidth;            // reset animation
+  card.classList.add('shake');
+  if (navigator.vibrate) navigator.vibrate(60);
+}
+
+function lockKeys(state) {
+  locked = state;
+  [...keypadEl.children].forEach(b => b.disabled = state);
+}
+
+/* ========== XỬ LÝ BẤM PHÍM ========== */
+function press(k) {
+  if (locked) return;
+
+  if (k === '⌫') {
+    pin = pin.slice(0, -1);
+    render();
+    return;
+  }
+  if (k === '✓') {
+    submit();
+    return;
+  }
+  if (pin.length < MAX_LEN) {
+    pin += k;
+    render();
+    if (navigator.vibrate) navigator.vibrate(8);
+  }
+}
+
+/* ========== GỬI MÃ ========== */
+function submit() {
+  if (locked) return;
+
+  if (pin.length < MAX_LEN) {
+    shake();
+    setMsg(`Nhập đủ ${MAX_LEN} số đã nào! 😅`, 'warn');
+    return;
+  }
+
+  attempts++;
+
+  if (attempts <= MAX_TRIES - 1) {
+    fakeVerify(() => {
+      shake();
+      setMsg(MESSAGES[attempts - 1], 'error');
+      pin = "";
+      render();
+      triesEl.textContent = `Còn ${MAX_TRIES - attempts} lần thử`;
+    });
+  } else {
+    finalTroll();
+  }
+}
+
+/* ========== GIẢ LẬP TIẾN TRÌNH XÁC MINH ========== */
+function fakeVerify(callback) {
+  lockKeys(true);
+  setMsg('Đang xác minh…', '');
+  progressEl.classList.add('show');
+  barEl.style.width = '0%';
+
+  let p = 0;
+  const timer = setInterval(() => {
+    p += Math.random() * 16 + 4;
+    if (p >= 100) {
+      p = 100;
+      barEl.style.width = '100%';
+      clearInterval(timer);
+      setTimeout(() => {
+        progressEl.classList.remove('show');
+        barEl.style.width = '0%';
+        lockKeys(false);
+        callback();
+      }, 420);
+    } else {
+      barEl.style.width = p + '%';
+    }
+  }, 130);
+}
+
+/* ========== MÀN KẾT (TROLL) ========== */
+function finalTroll() {
+  lockKeys(true);
+  setMsg('Đang xác minh…', '');
+  progressEl.classList.add('show');
+  barEl.style.width = '0%';
+
+  let p = 0;
+  const timer = setInterval(() => {
+    p += Math.random() * 12 + 5;
+    if (p >= 100) {
+      p = 100;
+      barEl.style.width = '100%';
+      clearInterval(timer);
+      setTimeout(showPrank, 450);
+    } else {
+      barEl.style.width = p + '%';
+    }
+  }, 120);
+}
+
+function showPrank() {
+  progressEl.classList.remove('show');
+  barEl.style.width = '0%';
+
+  // Đổi icon + tiêu đề
+  document.getElementById('lockIcon').textContent = '🤡';
+  document.querySelector('h1').textContent = 'TRÊU BẠN THÔI!';
+  document.querySelector('.sub').textContent = 'Bạn vừa bị troll rồi 😜';
+
+  // Ẩn gợi ý
+  document.querySelector('.hint').style.display = 'none';
+
+  // Ẩn bàn phím, hiện nút chơi lại
+  keypadEl.style.display = 'none';
+  triesEl.textContent = '';
+
+  setMsg(
+    'Làm gì có mã PIN nào đúng đâu! Nhưng mà… bạn vừa nhập NGÀY SINH của mình ' +
+    'vào một trang web lạ đấy 😱 Lần sau cẩn thận nhé!',
+    'done'
+  );
+
+  // Nút chơi lại
+  const btn = document.createElement('button');
+  btn.textContent = '↺ Chơi lại';
+  btn.style.cssText = `
+    margin-top:18px;width:100%;height:50px;border:none;border-radius:15px;
+    font-family:inherit;font-size:16px;font-weight:700;color:#fff;cursor:pointer;
+    background:linear-gradient(135deg,#7c3aed,#22d3ee);
+  `;
+  btn.onclick = () => location.reload();
+  card.appendChild(btn);
+
+  confetti();
+  if (navigator.vibrate) navigator.vibrate([80, 60, 80, 60, 200]);
+}
+
+/* ========== CONFETTI ========== */
+function confetti() {
+  const colors = ['#a78bfa','#22d3ee','#f472b6','#facc15','#34d399','#fb923c'];
+  for (let i = 0; i < 90; i++) {
+    const c = document.createElement('div');
+    c.className = 'conf';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDuration = (Math.random() * 1.6 + 1.6) + 's';
+    c.style.animationDelay = (Math.random() * 0.8) + 's';
+    c.style.transform = `rotate(${Math.random() * 360}deg)`;
+    confettiEl.appendChild(c);
+    setTimeout(() => c.remove(), 4200);
+  }
+}
+
+/* ========== HỖ TRỢ BÀN PHÍM VẬT LÝ ========== */
+document.addEventListener('keydown', e => {
+  if (locked) return;
+  if (/^[0-9]$/.test(e.key)) press(e.key);
+  else if (e.key === 'Backspace') press('⌫');
+  else if (e.key === 'Enter') press('✓');
+});
+</script>
+</body>
+  </html>
