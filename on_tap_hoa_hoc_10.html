@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ôn tập Hóa học 10 – Giữa kì I</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#172033;--muted:#667085;--line:#e4e8f0;--blue:#315efb;--green:#16834a;--red:#c43d4b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+header{background:linear-gradient(130deg,#14234b,#315efb);color:#fff;padding:28px 18px 24px}
+.wrap{max-width:900px;margin:auto;padding:0 14px}h1{font-size:clamp(24px,5vw,34px);margin:0 0 6px}header p{margin:0;color:#e1e8ff}
+main{padding:18px 0 50px}.toolbar{position:sticky;top:0;z-index:5;background:#f4f6fbf2;backdrop-filter:blur(8px);padding:10px 0}
+.tools{display:flex;gap:8px;flex-wrap:wrap}.tools button,.filter{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 12px;font:inherit;cursor:pointer}
+.tools button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.tools button:hover,.filter:hover{border-color:var(--blue)}
+.stats{margin:10px 0;color:var(--muted);font-size:14px}
+.section{font-size:20px;margin:24px 0 10px}.q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:10px 0;box-shadow:0 2px 8px #17203308}
+.q h3{font-size:16px;margin:0 0 10px}.tag{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:5px}
+.opt{display:flex;gap:9px;align-items:flex-start;padding:8px 10px;border:1px solid transparent;border-radius:9px;cursor:pointer}
+.opt:hover{background:#f5f7ff}.opt input{margin-top:5px;accent-color:var(--blue)}
+.q textarea{width:100%;min-height:46px;border:1px solid var(--line);border-radius:9px;padding:10px;font:inherit}
+.result{margin-top:9px;padding:9px 11px;border-radius:9px;font-size:14px;display:none}
+.result.good{display:block;background:#eaf8ef;color:#12643a}.result.bad{display:block;background:#fff0f1;color:#a52c39}
+.explain{color:var(--muted);margin-top:4px}.pill{display:inline-block;background:#edf1ff;color:#2849c7;padding:3px 8px;border-radius:99px;font-size:12px}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:22px}
+@media(max-width:520px){.q{padding:13px}.tools button{flex:1}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>Ôn tập Hóa học 10</h1><p>Kiểm tra giữa kì I · Bài 1 đến Bài 5 · Làm bài và tự chấm</p></div></header>
+<main class="wrap">
+<div class="toolbar"><div class="tools">
+<button class="primary" onclick="grade()">Chấm bài</button><button onclick="showAll()">Hiện đáp án</button><button onclick="resetQuiz()">Làm lại</button>
+<button onclick="window.print()">In đề</button></div>
+<div class="stats" id="stats">Chọn đáp án hoặc nhập kết quả rồi nhấn “Chấm bài”.</div></div>
+<div id="quiz"></div>
+</main>
+<footer>Nội dung được biên soạn từ các trang tài liệu bạn gửi. Một số câu ở mép ảnh bị khuất nên không đưa vào.</footer>
+<script>
+const mc = [
+["1.1","Đối tượng nghiên cứu chủ yếu của Hóa học là gì?",["Sự chuyển động cơ học của các vật thể","Bản chất và sự biến đổi của chất","Các quy luật di truyền sinh học","Các hiện tượng địa chất và khí tượng"],1],
+["1.2","Ứng dụng nào KHÔNG thuộc lĩnh vực ứng dụng trực tiếp của Hóa học?",["Sản xuất phân bón và thuốc trừ sâu","Tổng hợp dược phẩm","Tính toán quỹ đạo chuyển động của vệ tinh","Sản xuất vật liệu bán dẫn và polymer"],2],
+["1.3","Quá trình nào sau đây là sự biến đổi hóa học?",["Nước đá tan thành nước lỏng","Hòa tan đường vào nước","Đinh sắt để lâu trong không khí bị gỉ sét","Cồn để trong lọ hở bị bay hơi"],2],
+["1.4","Phương pháp học tập Hóa học hiệu quả nhất là gì?",["Chỉ học thuộc lý thuyết trong sách","Kết hợp lý thuyết với thực hành thí nghiệm và quan sát","Học công thức giải nhanh mà không hiểu bản chất","Bỏ qua các hiện tượng thí nghiệm"],1],
+["2.1","Khi thí nghiệm có thể sinh ra khí độc (Cl₂, SO₂, NO₂), cần tiến hành ở đâu?",["Trong phòng kín không có quạt thông gió","Trong tủ hút hoặc nơi thoáng khí, có hệ thống hút khí","Ngay trước bàn giáo viên không che chắn","Trong phòng có bật điều hòa"],1],
+["2.2","Dụng cụ nào dùng để đo chính xác thể tích dung dịch xác định?",["Cốc thủy tinh có mỏ","Bình tam giác (Erlenmeyer)","Pipette hoặc buret","Ống nghiệm thủy tinh"],2],
+["2.3","Biển báo hình ngọn lửa trên nhãn hóa chất cảnh báo điều gì?",["Chất ăn mòn kim loại","Chất dễ cháy khi gặp nhiệt hoặc tia lửa","Chất gây hại môi trường thủy sinh","Chất độc sinh học cấp tính"],1],
+["2.4","Cách xử lý đúng khi acid hoặc kiềm bắn vào da là gì?",["Bôi dầu ăn hoặc mỡ lên vết thương","Rửa ngay dưới vòi nước chảy liên tục ít nhất 15 phút","Dùng khăn khô chà xát mạnh","Băng kín ngay vết thương"],1],
+["3.1","Hạt nhân của hầu hết nguyên tử được cấu tạo bởi những hạt nào?",["Proton và electron","Proton và neutron","Electron và neutron","Chỉ có electron"],1],
+["3.2","Hạt nào trong nguyên tử mang điện tích âm?",["Proton","Neutron","Electron","Hạt nhân"],2],
+["3.3","Trong nguyên tử trung hòa về điện, mối quan hệ nào đúng?",["Số proton = số neutron","Số proton = số electron","Số neutron = số electron","Số proton + số neutron = số electron"],1],
+["3.4","Hạt neutron có đặc điểm nào?",["Mang điện tích âm, nằm ở lớp vỏ","Mang điện tích dương, nằm ở hạt nhân","Không mang điện, nằm ở hạt nhân","Có khối lượng rất nhỏ như electron"],2],
+["4.1","Một đơn vị khối lượng nguyên tử (amu) bằng bao nhiêu?",["Khối lượng một nguyên tử hydrogen","1/12 khối lượng một nguyên tử carbon-12","Khối lượng một proton","1/16 khối lượng một nguyên tử oxygen-16"],1],
+["4.2","Khối lượng nguyên tử tập trung chủ yếu ở đâu?",["Toàn bộ thể tích nguyên tử","Lớp vỏ electron","Hạt nhân nguyên tử","Khoảng không gian giữa vỏ và hạt nhân"],2],
+["4.3","Kích thước hạt nhân so với kích thước nguyên tử như thế nào?",["Lớn hơn nguyên tử rất nhiều","Xấp xỉ bằng nguyên tử","Nhỏ hơn khoảng 10.000 đến 100.000 lần","Lớn gấp đôi lớp vỏ"],2],
+["4.4","Hạt nào có khối lượng nhỏ nhất và thường có thể bỏ qua khi tính khối lượng nguyên tử?",["Proton","Neutron","Electron","Hạt alpha"],2],
+["5.1","Số hiệu nguyên tử Z cho biết điều gì?",["Số proton trong hạt nhân","Số neutron trong hạt nhân","Tổng số hạt p, n, e","Số lớp electron"],0],
+["5.2","Công thức tính số khối A là gì?",["A = Z − N","A = Z + N","A = 2Z + N","A = Z + 2N"],1],
+["5.3","Nguyên tử Sodium có 11 proton và 12 neutron. Số khối là bao nhiêu?",["11","12","23","1"],2],
+["5.4","Nguyên tử Aluminium có Z = 13 và A = 27. Số neutron là bao nhiêu?",["13","14","27","40"],1],
+["6.1","Các nguyên tử thuộc cùng một nguyên tố hóa học có cùng đại lượng nào?",["Số khối A","Số neutron N","Số proton trong hạt nhân (Z)","Tổng số hạt p và n"],2],
+["6.2","Trong kí hiệu nguyên tử, hai đại lượng A và Z lần lượt là gì?",["Số khối và số hiệu nguyên tử","Số hiệu nguyên tử và số khối","Số neutron và số proton","Số electron và số neutron"],0],
+["6.3","Nguyên tử ³⁵₁₇Cl có số proton, neutron, electron lần lượt là gì?",["17, 35, 17","17, 18, 17","18, 17, 18","17, 17, 18"],1],
+["7.1","Các đồng vị của cùng một nguyên tố là những nguyên tử có đặc điểm nào?",["Cùng số neutron, khác proton","Cùng số proton, khác số neutron","Cùng số khối, khác proton","Cùng electron và cùng neutron"],1],
+["7.2","Ba đồng vị ¹H, ²H, ³H khác nhau ở đại lượng nào?",["Số proton trong hạt nhân","Số electron ở lớp vỏ","Số neutron trong hạt nhân","Tính chất hóa học cơ bản"],2],
+["7.3","Hầu hết nguyên tố hóa học trong tự nhiên là hỗn hợp của nhiều đồng vị với tỉ lệ phần trăm xác định. Nhận định này nói về điều gì?",["Nguyên tố khác nhau","Đồng vị với tỉ lệ phần trăm xác định","Phân tử khí hiếm","Hợp chất ion bền vững"],1],
+["8.1","Theo mô hình hiện đại, electron chuyển động quanh hạt nhân như thế nào?",["Theo quỹ đạo tròn cố định như hành tinh","Rất nhanh, không theo quỹ đạo xác định; tạo thành đám mây electron","Theo quỹ đạo elip cố định","Đứng yên tại các vị trí phân lớp"],1],
+["8.2","Orbital nguyên tử là vùng không gian quanh hạt nhân có xác suất tìm thấy electron khoảng bao nhiêu?",["50%","75%","90%","100%"],2],
+["8.3","Orbital nguyên tử s có dạng hình học nào?",["Hình số 8","Hình cầu","Hình tứ diện đều","Hình cánh hoa bốn cánh"],1],
+["8.4","Orbital nguyên tử p có dạng hình học nào?",["Hình cầu đối xứng","Hình số 8 định hướng theo ba trục tọa độ","Hình elip phẳng","Hình lục giác đều"],1],
+["9.1","Các electron thuộc cùng một lớp có mức năng lượng như thế nào?",["Hoàn toàn bằng nhau tuyệt đối","Gần bằng nhau","Khác nhau rất nhiều","Ngẫu nhiên, không xác định"],1],
+["9.2","Lớp electron thứ 3 (n = 3) có bao nhiêu phân lớp?",["1","2","3","4"],2],
+["9.3","Số orbital trong các phân lớp s, p, d, f lần lượt là bao nhiêu?",["1, 3, 5, 7","1, 2, 3, 4","2, 6, 10, 14","1, 4, 9, 16"],0],
+["9.4","Một orbital nguyên tử chứa tối đa bao nhiêu electron?",["1","2 electron spin ngược chiều","6","8"],1],
+["10.3","Số electron tối đa trong lớp thứ n được tính theo công thức nào?",["2n","n²","2n²","2n + 1"],2],
+["10.4","Lớp thứ 2 (n = 2) chứa tối đa bao nhiêu electron?",["2","4","8","18"],2],
+["11.1","Thứ tự mức năng lượng các phân lớp tăng dần đúng là gì?",["1s 2s 2p 3s 3p 3d 4s","1s 2s 2p 3s 3p 4s 3d","1s 2s 3s 4s 2p 3p","1s 2p 3d 4f 2s"],1],
+["11.2","Nguyên lí vững bền phát biểu điều gì?",["Electron chiếm các orbital có mức năng lượng từ thấp đến cao","Một AO chứa tối đa 2 electron spin song song","Electron độc thân luôn ít nhất","Electron ngoài cùng luôn có năng lượng thấp nhất"],0],
+["11.3","Cấu hình electron nào được viết đúng quy tắc?",["1s² 2s² 2p⁷","1s² 2s² 2p⁶ 3s¹","1s² 2s² 2p⁶ 3s² 3p⁷","1s² 2s² 2p⁶ 3s³"],1],
+["11.4","Quy tắc Hund cho biết electron trong phân lớp chưa bão hòa có xu hướng nào?",["Ghép đôi hết vào AO đầu tiên","Phân bố đều vào các AO để số electron độc thân cực đại và spin cùng chiều","Dồn hết vào AO năng lượng cao nhất","Phân bố tự do không phụ thuộc spin"],1],
+["12.1","Nguyên tử có 1, 2 hoặc 3 electron lớp ngoài cùng (trừ H, He, B) thường là nguyên tử của nguyên tố nào?",["Phi kim","Kim loại","Khí hiếm","Halogen"],1],
+["12.2","Nguyên tử có 5, 6 hoặc 7 electron lớp ngoài cùng thường là nguyên tử của nguyên tố nào?",["Kim loại kiềm","Kim loại kiềm thổ","Phi kim","Khí hiếm"],2],
+["12.3","Nguyên tử có 8 electron lớp ngoài cùng (2 với He) thường thuộc loại nào?",["Kim loại hoạt động mạnh","Khí hiếm, bền vững về hóa học","Phi kim hoạt động mạnh","Nguyên tố phóng xạ"],1],
+["12.4","Nguyên tố X có cấu hình 1s² 2s² 2p⁶ 3s² 3p⁴ thuộc loại nào?",["Kim loại","Phi kim","Khí hiếm","Kim loại chuyển tiếp"],1],
+["13.1","Trong bảng tuần hoàn hiện đại, các nguyên tố được sắp xếp theo chiều tăng dần của đại lượng nào?",["Nguyên tử khối","Số khối A","Điện tích hạt nhân (số hiệu nguyên tử Z)","Bán kính nguyên tử"],2],
+["13.2","Số thứ tự ô nguyên tố trong bảng tuần hoàn bằng đại lượng nào?",["Số khối","Số hiệu nguyên tử Z","Số neutron","Số electron lớp ngoài cùng"],1],
+["13.3","Ô nguyên tố KHÔNG cung cấp trực tiếp thông tin nào?",["Kí hiệu và tên nguyên tố","Số hiệu nguyên tử và nguyên tử khối trung bình","Độ âm điện","Số lượng đồng vị phóng xạ nhân tạo"],3],
+["13.4","Bảng tuần hoàn hiện nay có bao nhiêu chu kì và nhóm (theo cách chia nhóm A, B trong tài liệu)?",["6 chu kì và 16 nhóm","7 chu kì và 8 nhóm","7 chu kì và 16 nhóm (8 nhóm A và 8 nhóm B)","8 chu kì và 18 nhóm"],2],
+["14.1","Các nguyên tố trong cùng một chu kì có đặc điểm chung nào?",["Cùng số electron lớp ngoài cùng","Cùng số lớp electron trong nguyên tử","Tính chất hóa học tương tự nhau","Cùng số electron hóa trị"],1],
+["14.2","Trong bảng tuần hoàn, các chu kì nhỏ là những chu kì nào?",["1, 2, 3","1, 2, 3, 4","4, 5, 6","5, 6, 7"],0],
+["14.3","Đối với nguyên tố thuộc nhóm A, số thứ tự nhóm thường bằng đại lượng nào?",["Số lớp electron","Số electron lớp ngoài cùng (electron hóa trị)","Tổng số electron trong nguyên tử","Số electron phân lớp s"],1],
+["14.4","Các nguyên tố nhóm IA (trừ hydrogen) được gọi là nhóm nào?",["Kim loại kiềm thổ","Halogen","Kim loại kiềm","Khí hiếm"],2]
+];
+const tf = [
+["15.1","Cho X (Z=6,A=12), Y (Z=6,A=14), Z (Z=7,A=14), T (Z=8,A=16).","Hai nguyên tử X và Y thuộc cùng một nguyên tố hóa học.",true],
+["15.1","Cho X (Z=6,A=12), Y (Z=6,A=14), Z (Z=7,A=14), T (Z=8,A=16).","Hai nguyên tử Y và Z là đồng vị của nhau.",false],
+["15.1","Cho X (Z=6,A=12), Y (Z=6,A=14), Z (Z=7,A=14), T (Z=8,A=16).","Số neutron trong hạt nhân nguyên tử Y là 8.",true],
+["15.1","Cho X (Z=6,A=12), Y (Z=6,A=14), Z (Z=7,A=14), T (Z=8,A=16).","Nguyên tử T có tổng số hạt mang điện là 16.",true],
+["15.2","Nguyên tử Potassium (K), Z=19, A=39.","Điện tích hạt nhân nguyên tử K là +19.",true],
+["15.2","Nguyên tử Potassium (K), Z=19, A=39.","Trong nguyên tử K, số hạt mang điện nhiều hơn số hạt không mang điện là 18.",true],
+["15.2","Nguyên tử Potassium (K), Z=19, A=39.","Khối lượng nguyên tử K xấp xỉ 39 amu.",true],
+["15.2","Nguyên tử Potassium (K), Z=19, A=39.","Bán kính hạt nhân K xấp xỉ bằng bán kính toàn bộ nguyên tử K.",false],
+["15.3","Chlorine tự nhiên gồm ³⁵Cl (75,77%) và ³⁷Cl (24,23%).","Hai đồng vị có cùng số electron ở vỏ nguyên tử nhưng khác số neutron.",true],
+["15.3","Chlorine tự nhiên gồm ³⁵Cl (75,77%) và ³⁷Cl (24,23%).","Nguyên tử khối trung bình của chlorine xấp xỉ 35,5.",true],
+["15.3","Chlorine tự nhiên gồm ³⁵Cl (75,77%) và ³⁷Cl (24,23%).","Trong tự nhiên, số nguyên tử ³⁷Cl nhiều hơn số nguyên tử ³⁵Cl.",false],
+["15.3","Chlorine tự nhiên gồm ³⁵Cl (75,77%) và ³⁷Cl (24,23%).","Hai đồng vị có tính chất hóa học cơ bản giống nhau vì có cùng cấu hình electron.",true],
+["15.4","Thí nghiệm bắn phá lá vàng mỏng bằng hạt alpha của Rutherford.","Hầu hết hạt alpha xuyên thẳng qua lá vàng mà không bị lệch hướng.",true],
+["15.4","Thí nghiệm bắn phá lá vàng mỏng bằng hạt alpha của Rutherford.","Nguyên tử có cấu tạo đặc khít, không có khoảng trống.",false],
+["15.4","Thí nghiệm bắn phá lá vàng mỏng bằng hạt alpha của Rutherford.","Một số ít hạt alpha bị lệch hướng hoặc bật ngược lại, chứng tỏ hạt nhân rất nhỏ và mang điện dương.",true],
+["15.4","Thí nghiệm bắn phá lá vàng mỏng bằng hạt alpha của Rutherford.","Toàn bộ điện tích âm của nguyên tử tập trung tại hạt nhân.",false],
+["16.1","Nguyên tố X có Z=16 (Sulfur).","Cấu hình electron của X là 1s² 2s² 2p⁶ 3s² 3p⁴.",true],
+["16.1","Nguyên tố X có Z=16 (Sulfur).","Nguyên tử X có 3 lớp electron và 6 electron lớp ngoài cùng.",true],
+["16.1","Nguyên tố X có Z=16 (Sulfur).","X ở ô số 16, chu kì 3, nhóm VIA (nhóm 16).",true],
+["16.1","Nguyên tố X có Z=16 (Sulfur).","X là kim loại mạnh vì có hơn 3 electron lớp ngoài cùng.",false],
+["16.2","Hai nguyên tố A (Z=11) và B (Z=17).","Cấu hình electron lớp ngoài cùng của A là 3s¹.",true],
+["16.2","Hai nguyên tố A (Z=11) và B (Z=17).","Nguyên tố B có 7 electron lớp ngoài cùng nên thuộc nhóm VIIA (nhóm 17).",true],
+["16.2","Hai nguyên tố A (Z=11) và B (Z=17).","Cả A và B đều thuộc cùng chu kì.",true],
+["16.2","Hai nguyên tố A (Z=11) và B (Z=17).","A là phi kim, còn B là kim loại.",false],
+["16.3","Nguyên tố Calcium (Ca) có cấu hình [Ar] 4s².","Calcium thuộc khối s.",true],
+["16.3","Nguyên tố Calcium (Ca) có cấu hình [Ar] 4s².","Calcium ở ô số 20, chu kì 4, nhóm IIA (nhóm 2).",true],
+["16.3","Nguyên tố Calcium (Ca) có cấu hình [Ar] 4s².","Trong phản ứng hóa học, Ca có xu hướng nhận thêm 2 electron tạo ion Ca²⁻.",false],
+["16.3","Nguyên tố Calcium (Ca) có cấu hình [Ar] 4s².","Calcium là kim loại kiềm thổ, có tính khử.",true],
+["16.4","Nguyên tố Iron (Fe) có cấu hình [Ar] 3d⁶ 4s².","Iron là nguyên tố khối d, kim loại chuyển tiếp.",true],
+["16.4","Nguyên tố Iron (Fe) có cấu hình [Ar] 3d⁶ 4s².","Nguyên tử Fe có 4 lớp electron nên thuộc chu kì 4.",true],
+["16.4","Nguyên tố Iron (Fe) có cấu hình [Ar] 3d⁶ 4s².","Tổng số electron hóa trị của Fe là 8 (3d⁶ và 4s²).",true],
+["16.4","Nguyên tố Iron (Fe) có cấu hình [Ar] 3d⁶ 4s².","Iron là phi kim vì phân lớp 3d chưa bão hòa.",false]
+];
+const shortq = [
+["17.1","Tổng số proton, neutron và electron của nguyên tử X là 40. Số hạt mang điện nhiều hơn số hạt không mang điện 12. Tính Z.","13","Gọi p=e=Z, n=N. 2Z+N=40 và 2Z−N=12 ⇒ Z=13."],
+["17.2","Nguyên tử Y có tổng số hạt cơ bản là 52; số hạt mang điện gấp 1,889 lần số hạt không mang điện (làm tròn số nguyên). Tính số khối A.","35","2Z+N=52; 2Z/N≈1,889 ⇒ Z≈18, N≈16, A=34. Lưu ý số liệu OCR ở ảnh có thể không rõ; kiểm tra lại đề gốc."],
+["17.3","Nguyên tử R có tổng số hạt p, n, e là 28. Biết 1 ≤ N/Z ≤ 1,5. Tìm số neutron N.","10","p=e=Z nên 2Z+N=28. Điều kiện cho nghiệm nguyên Z=9 hoặc 10; đề cần thêm điều kiện để xác định duy nhất. Với Z=9 thì N=10."],
+["17.4","Ion M²⁺ có tổng số hạt mang điện là 22. Tìm số proton trong hạt nhân M.","12","Ion M²⁺ có p=Z, e=Z−2. Tổng hạt mang điện p+e=2Z−2=22 ⇒ Z=12."],
+["18.1","Copper có hai đồng vị ⁶³Cu (73%) và ⁶⁵Cu (27%). Tính nguyên tử khối trung bình.","63,54","63×0,73 + 65×0,27 = 63,54."],
+["18.2","Boron có nguyên tử khối trung bình 10,81; gồm ¹⁰B và ¹¹B. Tính phần trăm số nguyên tử ¹¹B.","81%","Gọi x là phần trăm ¹¹B: 10(1−x)+11x=10,81 ⇒ x=0,81."],
+["18.3","Bromine có ⁷⁹Br và ⁸¹Br; nguyên tử khối trung bình 79,91. Tính phần trăm ⁷⁹Br (làm tròn 0,1%).","54,5%","Gọi x là phần số ⁷⁹Br: 79x+81(1−x)=79,91 ⇒ x=54,5%."],
+["18.4","Carbon có ¹²C (98,9%) và ¹³C (1,1%). Tính nguyên tử khối trung bình (làm tròn 0,01).","12,01","12×0,989 + 13×0,011 = 12,011 ≈ 12,01."],
+["19.1","Phosphorus (P) có Z=15. Ở trạng thái cơ bản, có bao nhiêu electron độc thân?","3","Cấu hình: 1s² 2s² 2p⁶ 3s² 3p³; theo quy tắc Hund có 3 electron độc thân."],
+["19.2","Oxygen (O) có Z=8. Ở trạng thái cơ bản, có bao nhiêu electron độc thân?","2","Cấu hình: 1s² 2s² 2p⁴; phân lớp 2p có 2 electron độc thân."]
+];
+const root=document.getElementById('quiz');
+function section(t){let h=document.createElement('h2');h.className='section';h.textContent=t;root.append(h)}
+section('Phần I · Trắc nghiệm nhiều lựa chọn');
+mc.forEach((q,i)=>{let d=document.createElement('article');d.className='q';d.dataset.type='mc';d.dataset.i=i;
+d.innerHTML=`<div class="tag">CÂU ${q[0]} · Chọn một đáp án</div><h3>${q[1]}</h3>`+
+q[2].map((o,j)=>`<label class="opt"><input type="radio" name="m${i}" value="${j}"><span>${'ABCD'[j]}. ${o}</span></label>`).join('')+
+`<div class="result" id="r-m${i}"></div>`;root.append(d)});
+section('Phần II · Trắc nghiệm đúng / sai');
+tf.forEach((q,i)=>{let d=document.createElement('article');d.className='q';d.dataset.type='tf';d.dataset.i=i;
+d.innerHTML=`<div class="tag">CÂU ${q[0]} · Đúng hay sai</div><div class="explain">${q[1]}</div><h3>${q[2]}</h3>
+<label class="opt"><input type="radio" name="t${i}" value="true"><span>Đúng</span></label>
+<label class="opt"><input type="radio" name="t${i}" value="false"><span>Sai</span></label><div class="result" id="r-t${i}"></div>`;root.append(d)});
+section('Phần III · Trả lời ngắn');
+shortq.forEach((q,i)=>{let d=document.createElement('article');d.className='q';d.dataset.type='short';d.dataset.i=i;
+d.innerHTML=`<div class="tag">CÂU ${q[0]}</div><h3>${q[1]}</h3><input aria-label="Đáp án" id="s${i}" style="width:100%;border:1px solid var(--line);border-radius:9px;padding:11px;font:inherit" placeholder="Nhập đáp án..."><div class="result" id="r-s${i}"></div>`;root.append(d)});
+function norm(s){return s.toLowerCase().replace(/\s/g,'').replace(',','.').replace('％','%')}
+function grade(){let score=0,total=mc.length+tf.length+shortq.length;
+mc.forEach((q,i)=>{let v=document.querySelector(`input[name=m${i}]:checked`);let ok=!!v&&+v.value===q[3];if(ok)score++;let r=document.getElementById('r-m'+i);r.className='result '+(ok?'good':'bad');r.innerHTML=(ok?'Chính xác!':'Chưa đúng. Đáp án: '+ 'ABCD'[q[3]]+'. '+q[2][q[3]])});
+tf.forEach((q,i)=>{let v=document.querySelector(`input[name=t${i}]:checked`);let ok=!!v&&(v.value==='true')===q[3];if(ok)score++;let r=document.getElementById('r-t'+i);r.className='result '+(ok?'good':'bad');r.textContent=(ok?'Chính xác!':'Đáp án đúng: '+(q[3]?'Đúng':'Sai'))});
+shortq.forEach((q,i)=>{let v=document.getElementById('s'+i).value.trim();let ok=norm(v)===norm(q[2]);if(ok)score++;let r=document.getElementById('r-s'+i);r.className='result '+(ok?'good':'bad');r.innerHTML=(ok?'Chính xác!':'Đáp án tham khảo: '+q[2])+`<div class="explain">${q[3]}</div>`});
+document.getElementById('stats').textContent=`Kết quả: ${score}/${total} câu đúng (${(score/total*10).toFixed(2)}/10). Đáp án và lời giải đã hiện bên dưới.`;window.scrollTo({top:0,behavior:'smooth'})}
+function showAll(){mc.forEach((q,i)=>{let r=document.getElementById('r-m'+i);r.className='result good';r.textContent='Đáp án: '+ 'ABCD'[q[3]]+'. '+q[2][q[3]]});tf.forEach((q,i)=>{let r=document.getElementById('r-t'+i);r.className='result good';r.textContent='Đáp án: '+(q[3]?'Đúng':'Sai')});shortq.forEach((q,i)=>{let r=document.getElementById('r-s'+i);r.className='result good';r.innerHTML='Đáp án tham khảo: '+q[2]+`<div class="explain">${q[3]}</div>`});document.getElementById('stats').textContent='Đã hiện toàn bộ đáp án tham khảo.'}
+function resetQuiz(){document.querySelectorAll('input[type=radio]').forEach(x=>x.checked=false);document.querySelectorAll('input[id^=s]').forEach(x=>x.value='');document.querySelectorAll('.result').forEach(x=>{x.className='result';x.textContent=''});document.getElementById('stats').textContent='Đã xóa câu trả lời. Hãy bắt đầu lại.';window.scrollTo({top:0,behavior:'smooth'})}
+</script>
+</body></html>
